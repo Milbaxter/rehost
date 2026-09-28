@@ -1,0 +1,543 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rehost</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Metamorphous&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --sky1:#3a3a4c;--sky2:#15161f;--sky3:#07070b;
+  --stone:#1a1b21;--stone-2:#23252d;--iron-hi:#6f7482;--iron-lo:#08090c;
+  --well:#050507;
+  --gold:#f2c318;--gold-2:#c99a10;
+  --text:#f1f1f4;--muted:#9a9cab;
+  --btn-1:#1b1f9c;--btn-2:#0a0d52;--btn-edge:#6d7cff;
+  --sel:#1a1aa6;
+  --sys:#5fe35f;--info:#7fc8ff;--err:#ff5d4d;--name:#f2c318;
+  --ui:"Marcellus","Friz Quadrata","Trajan Pro",Georgia,serif;
+  --chunky:"Metamorphous","Marcellus",Georgia,serif;
+}
+html,body{height:100%}
+body{
+  color:var(--text);font:15px/1.35 var(--ui);
+  background:
+    radial-gradient(2px 2px at 12% 18%,#fff8 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 72% 12%,#fff6 50%,transparent 51%),
+    radial-gradient(2px 2px at 88% 64%,#fff5 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 34% 82%,#fff5 50%,transparent 51%),
+    radial-gradient(ellipse 70% 50% at 60% 10%,#57586e 0%,transparent 70%),
+    radial-gradient(ellipse 60% 60% at 10% 90%,#2b2c3c 0%,transparent 70%),
+    linear-gradient(170deg,var(--sky1),var(--sky2) 55%,var(--sky3));
+  background-attachment:fixed;
+  padding-inline:16px;padding-block:14px;box-sizing:border-box;
+}
+*{box-sizing:border-box}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:1px dashed var(--gold);outline-offset:2px}
+
+.app{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+
+/* window chrome, like the old client in windowed mode */
+.chrome{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:3px 8px;background:linear-gradient(#c9d4e6,#8e9ab0);color:#1b1f2a;
+  font:12px Tahoma,Verdana,sans-serif;border:1px solid #445}
+.chrome b{letter-spacing:.02em}
+.chrome .st{display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:#777}
+.dot.on{background:#1faa3a}.dot.off{background:#c2331f}
+
+/* iron panel */
+.panel{position:relative;background:
+    radial-gradient(ellipse at 30% 0%,#2a2c35 0%,transparent 60%),
+    linear-gradient(#202229,#15161b);
+  border:3px solid #0b0c10;border-radius:4px;
+  box-shadow:0 0 0 2px #4a4e5a,0 0 0 5px #121318,0 0 0 6px #5b606d,0 8px 24px #000a,inset 0 0 0 2px #2d3039,inset 0 0 22px #000c;
+  padding:30px 22px 22px}
+.panel::before,.panel::after{content:"";position:absolute;left:14px;right:14px;height:8px;
+  background:radial-gradient(circle at 4px 4px,#b8bcc8 0 1.6px,#3a3d47 2.4px,transparent 3px) 0 0/34px 8px repeat-x;opacity:.8}
+.panel::before{top:9px}.panel::after{bottom:7px}
+.panel h2{margin:0 0 4px;font:400 22px var(--ui);color:#fff;letter-spacing:.01em;text-wrap:balance}
+.label{color:var(--gold);font-size:15px;margin:0 0 6px}
+.sub{color:var(--gold);font-size:14px;margin:0}
+
+.well{background:var(--well);border:2px solid;border-color:#07070a #4b4f5b #4b4f5b #07070a;box-shadow:0 0 0 3px #1c1d23,0 0 0 4px #3b3e48}
+
+/* buttons: blue slab in an iron socket */
+.btn{position:relative;min-width:150px;padding:7px 18px;cursor:pointer;
+  background:linear-gradient(#2528b8 0%,var(--btn-1) 35%,var(--btn-2) 100%);color:#fff;
+  font:16px var(--ui);letter-spacing:.02em;text-shadow:0 1px 0 #000;
+  border:2px solid;border-color:var(--btn-edge) #04062c #04062c var(--btn-edge);border-radius:3px;
+  box-shadow:0 0 0 3px #0a0b0f,0 0 0 5px #464a56,0 0 0 7px #121318}
+.btn:hover{background:linear-gradient(#3438d6,#2226b0 35%,#0e1270);color:#fff6c8}
+.btn:active{border-color:#04062c var(--btn-edge) var(--btn-edge) #04062c;transform:translateY(1px)}
+.btn:disabled{filter:grayscale(.85) brightness(.7);cursor:not-allowed}
+.btn.sm{min-width:0;padding:5px 12px}
+.icon-btn{min-width:0;width:40px;padding:5px 0;color:var(--gold);font-size:18px;line-height:1}
+
+.input{width:100%;padding:7px 10px;background:#0a0a0d;color:#fff;border:2px solid;border-color:#07070a #4b4f5b #4b4f5b #07070a;box-shadow:0 0 0 3px #1c1d23}
+.input:focus{outline:none;border-color:#07070a var(--gold-2) var(--gold-2) #07070a}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{color:var(--gold);font-size:14px}
+.hint{font-size:12px;color:var(--muted);font-family:Tahoma,Verdana,sans-serif}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.row.end{justify-content:flex-end}
+.err{color:var(--err);margin:0;font-size:13px;font-family:Tahoma,Verdana,sans-serif}
+
+/* logo */
+.logo{font:400 44px/1 var(--chunky);color:var(--gold);letter-spacing:.06em;text-align:center;
+  text-shadow:0 2px 0 #6b4c00,0 0 24px #f2c31855,0 0 2px #000}
+.logo small{display:block;margin-top:6px;font:14px var(--ui);color:var(--muted);letter-spacing:.2em;text-transform:uppercase;text-shadow:none}
+
+/* screens */
+.login{max-width:460px;width:100%;margin:5vh auto 0;display:flex;flex-direction:column;gap:18px}
+.login form{display:flex;flex-direction:column;gap:14px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.bottom{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+
+/* custom games list */
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.list{height:380px;overflow-y:auto;padding:4px;font-size:16px}
+.item{display:block;width:100%;text-align:left;background:none;border:0;padding:3px 8px;color:var(--text);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item:hover{background:#15153a}
+.item.sel{background:var(--sel);color:var(--gold)}
+.item.full{color:#7d7f8c}
+.item .demo{font-size:11px;color:var(--muted);margin-left:6px;font-family:Tahoma,sans-serif}
+.list .empty{color:var(--muted);padding:20px 10px;font-size:14px}
+.namebar{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:20px}
+.namebar .input{flex:1;min-width:180px;font-size:16px}
+
+/* detail side */
+.dtitle{display:flex;justify-content:center;align-items:center;gap:8px;font-size:19px;color:#fff;text-align:center;min-height:28px}
+.dtitle .gear{color:var(--gold)}
+.preview{width:210px;max-width:100%;aspect-ratio:1/1;margin:14px auto 26px;display:grid;place-items:center;text-align:center;padding:14px;
+  background:#000;border:5px solid var(--gold);box-shadow:0 0 0 5px #0c0c10,0 0 0 7px #4a4e5a,0 0 0 9px #111;
+  font:400 30px/1.05 var(--chunky);color:#fff;text-transform:uppercase;word-break:break-word}
+.preview em{display:block;font-style:normal;color:#f7e326;font-size:46px;margin-top:6px}
+.stats{display:grid;grid-template-columns:1fr auto;gap:2px 14px;margin:0 6% 16px;font-size:16px}
+.stats dt{color:var(--gold)}
+.stats dd{margin:0;text-align:right;color:#fff;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stats .gap{grid-column:1/-1;height:12px}
+.dempty{color:var(--muted);text-align:center;padding:90px 10px;font-size:15px}
+
+/* chat screen */
+.log{height:380px;overflow-y:auto;padding:8px 10px;font:14px/1.45 Tahoma,Verdana,sans-serif;word-wrap:break-word}
+.log p{margin:0 0 2px}
+.log .n{color:var(--name)}
+.log .me .n{color:#fff}
+.log .sys{color:var(--sys)}.log .info{color:var(--info)}.log .err{color:var(--err)}
+.log .emote{color:#e0b8ff}
+.log time{color:#4f5264;font-size:11px;margin-right:6px}
+.say{display:flex;gap:18px;margin-top:18px;align-items:center}
+.say .input{flex:1}
+.users{height:380px;overflow-y:auto;padding:4px}
+.user{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:8px;padding:4px 6px;font-size:15px}
+.user .un{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user.you .un{color:var(--gold)}
+.user .where{display:block;font:11px Tahoma,sans-serif;color:var(--muted)}
+.badge{width:34px;height:26px;display:grid;place-items:center;font:700 10px Tahoma,sans-serif;color:#fff;
+  border:1px solid #000;box-shadow:inset 1px 1px 0 #fff5,inset -1px -1px 0 #0008,0 0 0 1px #555a66}
+.lag{display:flex;gap:1px;align-items:flex-end;height:13px}
+.lag i{width:3px;background:#2b2d38}
+.lag i.g{background:#39d139}.lag i.y{background:#e6d33a}.lag i.r{background:#e2493a}
+
+/* game lobby slots */
+.slots{padding:6px;font-size:15px}
+.slothead,.slot{display:grid;grid-template-columns:1fr 90px 70px 80px;gap:10px;align-items:center;padding:5px 8px}
+.slothead{color:var(--gold);font-size:14px;border-bottom:1px solid #2a2c35}
+.slot+.slot{border-top:1px solid #121318}
+.slot .un{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot.open .un{color:#6e7080}
+.slot .host{color:var(--gold);font-size:12px;margin-left:6px}
+.pc{width:18px;height:14px;border:1px solid #000;box-shadow:0 0 0 1px #555a66}
+.ready{color:var(--sys);font:12px Tahoma,sans-serif}.away{color:var(--muted);font:12px Tahoma,sans-serif}
+.launch{margin-top:18px;padding:14px;display:flex;flex-direction:column;gap:12px;align-items:flex-start;
+  background:linear-gradient(#2a2104,#0f0b01);border:2px solid var(--gold-2)}
+.launch a{text-decoration:none}
+.note{font:12px Tahoma,Verdana,sans-serif;color:var(--muted);text-align:center}
+
+@media (max-width:820px){
+  .grid2,.bottom{grid-template-columns:1fr}
+  .list,.log,.users{height:280px}
+  .panel{padding:28px 14px 20px}
+  .btn{min-width:120px}
+  .slothead,.slot{grid-template-columns:1fr 60px 64px}
+  .slothead .c-color,.slot .c-color{display:none}
+  .logo{font-size:34px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head><body>
+<div class="app">
+  <div class="chrome"><b>Rehost</b><span class="st"><span class="dot" id="netdot"></span><span id="nettext">Connecting…</span></span></div>
+
+  <!-- LOGIN -->
+  <section id="v-login" class="login">
+    <div class="logo">REHOST<small>Custom games for any browser game</small></div>
+    <div class="panel">
+      <h2>Log On</h2>
+      <p class="sub" style="margin-bottom:14px">Pick a handle and a gateway.</p>
+      <form id="loginForm" autocomplete="off">
+        <div class="field"><label for="nick">Account Name</label>
+          <input class="input" id="nick" maxlength="15" placeholder="e.g. FootmanFrank" required>
+          <span class="hint">3–15 letters, numbers, _ or -. No account or password needed.</span></div>
+        <div class="field"><label for="realm">Gateway</label>
+          <select class="input" id="realm"><option>Northrend</option><option>Tidewater</option><option>Duskreach</option><option>Lotus</option></select></div>
+        <p class="err" id="loginErr" hidden></p>
+        <div class="row end" style="margin-top:6px"><button class="btn" type="submit">Log On</button></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- CHAT CHANNEL -->
+  <section id="v-chat" hidden>
+    <div class="grid2" style="grid-template-columns:1.7fr 1fr">
+      <div class="panel">
+        <h2 id="chanName">Channel: Rehost</h2>
+        <p class="label" id="chanCount">Chat</p>
+        <div class="well log" id="log" aria-live="polite"></div>
+        <form class="say" id="sayForm" autocomplete="off">
+          <input class="input" id="sayInput" maxlength="300" placeholder="Type to chat. /me waves" aria-label="Chat message">
+          <button class="btn sm" type="submit">Send</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>Users</h2>
+        <p class="label" id="userCount">In channel:</p>
+        <div class="well users" id="users"></div>
+      </div>
+    </div>
+    <div class="bottom" style="margin-top:22px">
+      <div class="panel">
+        <h2>Custom Games</h2>
+        <p class="sub" style="margin-bottom:16px">Browse open games <span id="gameCount"></span> or host your own.</p>
+        <div class="row"><button class="btn" id="bToGames">Custom Games</button><button class="btn" id="bToCreate">Create Game</button></div>
+      </div>
+      <div class="panel" style="display:flex;align-items:center;justify-content:flex-end">
+        <button class="btn" id="bQuit">Quit</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CUSTOM GAMES LIST -->
+  <section id="v-games" hidden>
+    <div class="grid2">
+      <div class="panel">
+        <div class="head">
+          <div><h2>Rehost Custom Games</h2><p class="label">Available Games:</p></div>
+          <div class="row" style="gap:14px">
+            <button class="btn icon-btn" id="bRefresh" title="Refresh" aria-label="Refresh">↻</button>
+            <button class="btn sm" id="bFilter" style="min-width:110px">Filter</button>
+          </div>
+        </div>
+        <div id="filterRow" hidden style="margin-bottom:12px">
+          <input class="input" id="filter" placeholder="Filter by game, name or host" aria-label="Filter games">
+        </div>
+        <div class="well list" id="glist" role="listbox" aria-label="Available games"></div>
+        <div class="field" style="margin-top:14px"><label for="gname">Game Name:</label></div>
+        <div class="namebar" style="margin-top:6px">
+          <input class="input" id="gname" readonly placeholder="Select a game">
+          <button class="btn" id="bDoJoin" disabled>Join Game</button>
+        </div>
+      </div>
+      <div class="panel" id="gdetail"></div>
+    </div>
+    <div class="bottom" style="margin-top:22px">
+      <div class="panel">
+        <h2>Rehost Custom Game Creation</h2>
+        <p class="sub" style="margin-bottom:16px">To create your own custom game, click the button below.</p>
+        <div class="row"><button class="btn" id="bToCreate2">Create Game</button></div>
+      </div>
+      <div class="panel" style="display:flex;align-items:center;justify-content:flex-end">
+        <button class="btn" id="bBackChat">Back</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CREATE -->
+  <section id="v-create" hidden>
+    <div class="grid2">
+      <div class="panel">
+        <h2>Create Game</h2>
+        <p class="label">Game Settings:</p>
+        <form id="createForm" autocomplete="off" style="display:flex;flex-direction:column;gap:14px">
+          <div class="field"><label for="cName">Game Name</label>
+            <input class="input" id="cName" maxlength="36" required></div>
+          <div class="field"><label for="cGame">Game</label>
+            <input class="input" id="cGame" maxlength="30" placeholder="Pixel Tanks, my vibe-coded roguelike…" required></div>
+          <div class="field"><label for="cUrl">Game Link</label>
+            <input class="input" id="cUrl" type="url" placeholder="https://yourgame.itch.io/…" required>
+            <span class="hint">Any browser game with an https link. Players open it when you start.</span></div>
+          <div class="row" style="gap:16px">
+            <div class="field" style="flex:1;min-width:120px"><label for="cMax">Max Players</label>
+              <select class="input" id="cMax"><option>2</option><option>3</option><option selected>4</option><option>6</option><option>8</option><option>10</option><option>12</option></select></div>
+            <div class="field" style="flex:1;min-width:120px"><label for="cSpeed">Game Speed</label>
+              <select class="input" id="cSpeed"><option>Fast</option><option>Normal</option><option>Chill</option></select></div>
+          </div>
+          <div class="field"><label for="cDesc">Note (optional)</label>
+            <input class="input" id="cDesc" maxlength="100" placeholder="Newbies welcome, voice on Discord"></div>
+          <p class="err" id="cErr" hidden></p>
+        </form>
+      </div>
+      <div class="panel" id="cPreviewPanel"></div>
+    </div>
+    <div class="bottom" style="margin-top:22px">
+      <div class="panel" style="display:flex;align-items:center"><button class="btn" id="bDoCreate">Create Game</button></div>
+      <div class="panel" style="display:flex;align-items:center;justify-content:flex-end"><button class="btn" id="bCancelCreate">Cancel</button></div>
+    </div>
+  </section>
+
+  <!-- GAME LOBBY -->
+  <section id="v-game" hidden>
+    <div class="grid2" style="grid-template-columns:1.4fr 1fr">
+      <div class="panel">
+        <h2 id="gTitle">Game</h2>
+        <p class="label" id="gSub">Players:</p>
+        <div class="well slots">
+          <div class="slothead"><span>Player</span><span class="c-color">Color</span><span>Team</span><span>Status</span></div>
+          <div id="slots"></div>
+        </div>
+        <div class="launch" id="launch" hidden>
+          <span style="color:#f7e7a8">The host started the game. It opens on another site in a new tab.</span>
+          <a class="btn" id="launchLink" href="#" target="_blank" rel="noopener noreferrer">Launch Game</a>
+        </div>
+        <p class="label" style="margin-top:18px">Game Chat:</p>
+        <div class="well log" id="glog" style="height:170px"></div>
+        <form class="say" id="gsayForm" autocomplete="off">
+          <input class="input" id="gsayInput" maxlength="300" placeholder="Talk to your party" aria-label="Game chat message">
+          <button class="btn sm" type="submit">Send</button>
+        </form>
+      </div>
+      <div class="panel" id="gdetail2"></div>
+    </div>
+    <div class="bottom" style="margin-top:22px">
+      <div class="panel" style="display:flex;align-items:center"><button class="btn" id="bStart" hidden>Start Game</button><span class="sub" id="waitMsg">Waiting for the host to start…</span></div>
+      <div class="panel" style="display:flex;align-items:center;justify-content:flex-end"><button class="btn" id="bLeave">Cancel</button></div>
+    </div>
+  </section>
+
+  <p class="note" id="demoNote" hidden>Lost connection to the server. Reconnecting…</p>
+</div>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const LS = { get(k){try{return localStorage.getItem(k)}catch{return null}}, set(k,v){try{localStorage.setItem(k,v)}catch{}} };
+const SS = { get(k){try{return sessionStorage.getItem(k)}catch{return null}}, set(k,v){try{sessionStorage.setItem(k,v)}catch{}}, del(k){try{sessionStorage.removeItem(k)}catch{}} };
+const PALETTE = ["#c21b1b","#1a52d6","#1bb8a3","#6a1fa8","#e6d31c","#e2771b","#1fa81f","#e05ab0","#8f9398","#6fa7e0","#146b3a","#5a3a14"];
+const PNAMES = ["Red","Blue","Teal","Purple","Yellow","Orange","Green","Pink","Gray","Light Blue","Dark Green","Brown"];
+const WS_URL = (location.protocol==="https:"?"wss://":"ws://")+location.host;
+const S = { ws:null, you:null, nick:"", realm:"", users:[], lobbies:[], lobby:null, ticket:null, view:"login", selected:null, retry:0, pendingCreate:false };
+
+/* helpers */
+function hash(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)}
+function initials(g){const w=String(g||"?").replace(/[^A-Za-z0-9 ]/g,"").trim().split(/\s+/);return (w.length>1?w[0][0]+w[1][0]:(w[0]||"??").slice(0,3)).toUpperCase()}
+function badge(el,g){el.textContent=initials(g);el.style.background=PALETTE[hash(g)%PALETTE.length]}
+function lagBars(seed){const q=1+hash(seed)%5,cls=q>=4?"g":q>=2?"y":"r";const w=document.createElement("span");w.className="lag";
+  for(let i=1;i<=5;i++){const b=document.createElement("i");b.style.height=(3+i*2)+"px";if(i<=q)b.className=cls;w.appendChild(b)}return w}
+const hhmm=t=>{const d=new Date(t);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};
+function line(logEl,kind,nick,text,opts={}){
+  const p=document.createElement("p");if(opts.mine)p.className="me";
+  const t=document.createElement("time");t.textContent="["+hhmm(opts.at||Date.now())+"]";p.appendChild(t);
+  if(kind==="chat"){const n=document.createElement("span");n.className="n";n.textContent="<"+nick+"> ";p.append(n,document.createTextNode(text))}
+  else{const s=document.createElement("span");s.className=kind;s.textContent=kind==="emote"?"* "+nick+" "+text:text;p.appendChild(s)}
+  const stick=logEl.scrollHeight-logEl.scrollTop-logEl.clientHeight<40;
+  logEl.appendChild(p);while(logEl.children.length>300)logEl.firstChild.remove();
+  if(stick)logEl.scrollTop=logEl.scrollHeight;
+}
+function hostOf(u){try{return new URL(u).host}catch{return "–"}}
+function show(v){S.view=v;for(const k of ["login","chat","games","create","game"])$("v-"+k).hidden=k!==v;window.scrollTo(0,0)}
+function setNet(on,text){$("netdot").className="dot "+(on?"on":"off");$("nettext").textContent=text}
+function send(m){if(S.ws&&S.ws.readyState===1)S.ws.send(JSON.stringify(m))}
+
+function renderDetail(box,l,emptyText){
+  box.textContent="";
+  if(!l){const e=document.createElement("div");e.className="dempty";e.textContent=emptyText||"Select a game to see its details.";box.appendChild(e);return}
+  const t=document.createElement("div");t.className="dtitle";
+  const g=document.createElement("span");g.className="gear";g.textContent="⚙";
+  const tt=document.createElement("span");tt.textContent=l.game||"Untitled game";t.append(g,tt);
+  const pv=document.createElement("div");pv.className="preview";
+  const words=String(l.game||"?").trim().split(/\s+/);
+  const last=words.length>1&&/\d/.test(words[words.length-1])?words.pop():null;
+  pv.textContent=words.join(" ")||"?";
+  if(last){const em=document.createElement("em");em.textContent=last;pv.appendChild(em)}
+  const dl=document.createElement("dl");dl.className="stats";
+  const add=(k,v)=>{const dt=document.createElement("dt");dt.textContent=k;const dd=document.createElement("dd");dd.textContent=v;dd.title=v;dl.append(dt,dd)};
+  const gap=()=>{const d=document.createElement("div");d.className="gap";dl.appendChild(d)};
+  add("Suggested Players:",String(l.max||"–"));
+  add("Players In Lobby:",String((l.players||[]).length));
+  add("Runs At:",l.url?hostOf(l.url):"–");gap();
+  add("Game Creator:",l.hostNick||"–");
+  add("Game Speed:",l.speed||"Fast");
+  add("Game Creation Time:",l.createdAt?hhmm(l.createdAt):"–");
+  box.append(t,pv,dl);
+  if(l.desc){const p=document.createElement("p");p.className="hint";p.style.textAlign="center";p.style.margin="0";p.textContent=l.desc;box.appendChild(p)}
+}
+
+/* connection */
+function connect(){
+  setNet(false,S.retry?"Reconnecting…":"Connecting…");
+  const ws=new WebSocket(WS_URL);S.ws=ws;
+  ws.onopen=()=>{S.retry=0;$("demoNote").hidden=true;
+    if(S.nick)send({t:"hello",nick:S.nick,resume:SS.get("rh.session")});
+    else setNet(true,"Connected");};
+  ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch{return}handle(m)};
+  ws.onclose=()=>{if(S.ws!==ws)return;
+    setNet(false,"Reconnecting…");if(S.view!=="login")$("demoNote").hidden=false;
+    const wait=Math.min(10000,500*2**S.retry++);setTimeout(connect,wait)};
+}
+function handle(m){
+  switch(m.t){
+    case "welcome":{
+      const fresh=!S.you||S.you.id!==m.you.id;
+      S.you=m.you;S.nick=m.you.nick;SS.set("rh.session",m.you.id);
+      S.users=m.users;S.lobbies=m.lobbies;
+      setNet(true,"Connected to "+S.realm);
+      if(fresh){
+        $("log").textContent="";
+        for(const h of m.history)line($("log"),h.emote?"emote":"chat",h.nick,h.text,{at:h.at});
+        line($("log"),"sys","","Welcome to Rehost, "+S.nick+".");
+        line($("log"),"info","","Open Custom Games to join a game, or Create Game to host any browser game.");
+      }
+      if(m.lobby){S.lobby=m.lobby;if(S.view!=="game")enterGameView()}
+      else if(S.view==="login")enterChat();
+      renderUsers();renderGameCount();
+      break}
+    case "error":
+      if(m.code==="nick"){show("login");$("loginErr").textContent=m.msg;$("loginErr").hidden=false;S.nick="";SS.del("rh.session")}
+      else if(m.code==="create"){$("cErr").textContent=m.msg;$("cErr").hidden=false;S.pendingCreate=false}
+      else line(S.view==="game"?$("glog"):$("log"),"err","",m.msg);
+      break;
+    case "users":S.users=m.users;renderUsers();break;
+    case "lobbies":S.lobbies=m.lobbies;renderGameCount();if(S.view==="games")renderList();break;
+    case "chat":line($("log"),m.emote?"emote":"chat",m.nick,m.text,{mine:m.nick===S.nick,at:m.at});break;
+    case "gchat":
+      if(m.sys)line($("glog"),"info","",m.text);
+      else line($("glog"),m.emote?"emote":"chat",m.nick,m.text,{mine:m.nick===S.nick});
+      break;
+    case "lobby":
+      if(!m.lobby){S.lobby=null;S.ticket=null;if(S.view==="game")enterChat();break}
+      {const first=!S.lobby||S.lobby.id!==m.lobby.id;S.lobby=m.lobby;
+       if(first){S.ticket=null;$("glog").textContent="";enterGameView();
+         line($("glog"),"sys","",m.lobby.hostId===S.you.id?"You're the host. Start the game when your party is ready.":"You joined the game.")}
+       else renderGame()}
+      break;
+    case "started":S.ticket=m.ticket;renderGame();break;
+    case "closed":S.lobby=null;S.ticket=null;enterChat();line($("log"),"info","",m.reason);break;
+  }
+}
+
+/* login */
+$("loginForm").addEventListener("submit",e=>{
+  e.preventDefault();const raw=$("nick").value.trim();
+  if(!/^[A-Za-z0-9_\-]{3,15}$/.test(raw)){$("loginErr").textContent="Account names use 3–15 letters, numbers, _ or -.";$("loginErr").hidden=false;return}
+  $("loginErr").hidden=true;S.nick=raw;S.realm=$("realm").value;LS.set("rh.nick",raw);LS.set("rh.realm",S.realm);
+  send({t:"hello",nick:raw,resume:SS.get("rh.session")});
+});
+function enterChat(){show("chat");$("chanName").textContent="Channel: Rehost "+(S.realm||"Northrend")+"-1";renderUsers();renderGameCount();$("sayInput").focus()}
+$("bQuit").onclick=()=>{send({t:"bye"});SS.del("rh.session");S.you=null;S.nick="";S.lobby=null;$("log").textContent="";show("login");try{S.ws.close()}catch{};};
+
+/* chat */
+function parse(input){let text=input.value.trim();if(!text)return null;input.value="";
+  if(/^\/me\s+/i.test(text))return{text:text.replace(/^\/me\s+/i,""),emote:true};
+  if(text.startsWith("/"))return{err:"That command is unknown. Try /me <action>."};
+  return{text,emote:false}}
+$("sayForm").addEventListener("submit",e=>{e.preventDefault();const p=parse($("sayInput"));if(!p)return;if(p.err)return line($("log"),"err","",p.err);send({t:"chat",...p})});
+$("gsayForm").addEventListener("submit",e=>{e.preventDefault();const p=parse($("gsayInput"));if(!p)return;if(p.err)return line($("glog"),"err","",p.err);send({t:"gchat",...p})});
+
+function renderUsers(){
+  const box=$("users");box.textContent="";
+  const us=[...S.users].sort((a,b)=>((b.id===S.you?.id)-(a.id===S.you?.id))||a.nick.localeCompare(b.nick));
+  for(const u of us){
+    const me=u.id===S.you?.id;
+    const r=document.createElement("div");r.className="user"+(me?" you":"");
+    const b=document.createElement("span");b.className="badge";
+    if(u.game)badge(b,u.game);else{b.textContent="RH";b.style.background="#2b2f8f"}
+    const n=document.createElement("span");n.className="un";n.textContent=u.nick;
+    const w=document.createElement("span");w.className="where";w.textContent=u.game?"In game: "+u.game:"In chat";n.appendChild(w);
+    r.append(b,n,lagBars(u.nick));box.appendChild(r);
+  }
+  $("userCount").textContent="In channel: "+us.length;
+}
+function renderGameCount(){$("gameCount").textContent="("+S.lobbies.length+" open)"}
+
+/* game list */
+$("bToGames").onclick=()=>{S.selected=null;show("games");renderList()};
+$("bBackChat").onclick=enterChat;
+$("bRefresh").onclick=()=>{renderList();$("bRefresh").animate?.([{transform:"rotate(0)"},{transform:"rotate(360deg)"}],{duration:400})};
+$("bFilter").onclick=()=>{$("filterRow").hidden=!$("filterRow").hidden;if(!$("filterRow").hidden)$("filter").focus()};
+$("filter").oninput=renderList;
+function renderList(){
+  const q=$("filter").value.trim().toLowerCase();
+  const rows=S.lobbies.filter(l=>!q||(l.name+" "+l.game+" "+l.hostNick).toLowerCase().includes(q));
+  const box=$("glist");box.textContent="";
+  if(!rows.length){const e=document.createElement("div");e.className="empty";e.textContent=q?"No games match that filter.":"No custom games are open. Create one below.";box.appendChild(e)}
+  for(const l of rows){
+    const full=l.players.length>=l.max;
+    const b=document.createElement("button");b.type="button";b.className="item"+(S.selected===l.id?" sel":"")+(full?" full":"");
+    b.setAttribute("role","option");b.setAttribute("aria-selected",S.selected===l.id);
+    b.textContent=l.name+(full?" (full)":"");
+    b.onclick=()=>{S.selected=l.id;renderList()};b.ondblclick=()=>{S.selected=l.id;doJoin()};
+    box.appendChild(b);
+  }
+  const sel=S.lobbies.find(l=>l.id===S.selected);
+  $("gname").value=sel?sel.name:"";
+  $("bDoJoin").disabled=!sel||sel.players.length>=sel.max;
+  renderDetail($("gdetail"),sel);
+}
+$("bDoJoin").onclick=doJoin;
+function doJoin(){if(S.selected)send({t:"join",id:S.selected})}
+
+/* create */
+function openCreate(){$("cErr").hidden=true;if(!$("cName").value)$("cName").value=S.nick+"'s game #"+(1000+Math.floor(Math.random()*9000));show("create");updatePreview();$("cGame").focus()}
+$("bToCreate").onclick=openCreate;$("bToCreate2").onclick=openCreate;
+$("bCancelCreate").onclick=()=>{show("games");renderList()};
+["cName","cGame","cUrl","cMax","cSpeed","cDesc"].forEach(id=>$(id).addEventListener("input",updatePreview));
+function draft(){return{name:$("cName").value.trim(),game:$("cGame").value.trim(),url:$("cUrl").value.trim(),max:Number($("cMax").value),speed:$("cSpeed").value,desc:$("cDesc").value.trim()}}
+function updatePreview(){const d=draft();renderDetail($("cPreviewPanel"),d.game?{...d,hostNick:S.nick,players:[1],createdAt:Date.now()}:null,"Type a game to see its preview.")}
+$("createForm").addEventListener("submit",e=>{e.preventDefault();doCreate()});
+$("bDoCreate").onclick=doCreate;
+function doCreate(){$("cErr").hidden=true;send({t:"create",...draft()});$("cName").value=""}
+
+/* game lobby */
+function enterGameView(){show("game");renderGame();$("gsayInput").focus()}
+function launchUrl(){
+  if(!S.lobby||!S.ticket)return null;
+  try{const u=new URL(S.lobby.url);u.searchParams.set("rehost_ticket",S.ticket);u.searchParams.set("rehost_server",WS_URL);return u.href}catch{return null}
+}
+function renderGame(){
+  const g=S.lobby;if(!g)return;const isHost=g.hostId===S.you?.id;
+  $("gTitle").textContent=g.name;$("gSub").textContent="Players: "+g.players.length+"/"+g.max;
+  renderDetail($("gdetail2"),g);
+  const box=$("slots");box.textContent="";
+  for(let i=0;i<g.max;i++){
+    const p=g.players[i];const r=document.createElement("div");r.className="slot"+(p?"":" open");
+    const n=document.createElement("span");n.className="un";
+    const col=document.createElement("span");col.className="c-color";
+    const team=document.createElement("span");team.textContent=p?"Team "+(g.max>2?(i%2)+1:i+1):"";
+    const st=document.createElement("span");
+    if(p){
+      n.textContent=p.nick+(p.id===S.you?.id?" (you)":"");
+      if(p.id===g.hostId){const h=document.createElement("span");h.className="host";h.textContent="host";n.appendChild(h)}
+      const sw=document.createElement("span");sw.className="pc";sw.style.display="inline-block";sw.style.background=PALETTE[i%12];sw.title=PNAMES[i%12];col.appendChild(sw);
+      st.className=p.away?"away":"ready";st.textContent=p.inGame?"In game":p.away?"Away":"Ready";
+      if(isHost&&p.id!==S.you.id&&g.status==="open"){const k=document.createElement("button");k.className="btn sm";k.style.cssText="min-width:0;padding:1px 8px;margin-left:8px;font-size:12px";k.textContent="Kick";k.onclick=()=>send({t:"kick",id:p.id});n.appendChild(k)}
+    }else n.textContent="Open";
+    r.append(n,col,team,st);box.appendChild(r);
+  }
+  $("bStart").hidden=!isHost||g.status!=="open";
+  $("waitMsg").hidden=isHost||g.status!=="open";
+  const url=launchUrl();$("launch").hidden=!url;if(url)$("launchLink").href=url;
+}
+$("bStart").onclick=()=>send({t:"start"});
+$("bLeave").onclick=()=>{send({t:"leave"});S.lobby=null;S.ticket=null;enterChat();line($("log"),"info","","You left the game.")};
+
+const saved=LS.get("rh.nick");if(saved)$("nick").value=saved;
+const sr=LS.get("rh.realm");if(sr)$("realm").value=sr;S.realm=$("realm").value;
+// A refresh inside an active session logs straight back in.
+if(SS.get("rh.session")&&saved)S.nick=saved;
+connect();
+})();
+</script>
+</body></html>

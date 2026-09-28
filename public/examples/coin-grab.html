@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Coin Grab (Rehost example)</title>
+<style>
+  body{margin:0;background:#0b0c12;color:#eee;font:14px system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px}
+  canvas{background:#15172a;border:2px solid #444a66;max-width:100%;touch-action:none}
+  #status{min-height:1.4em}
+  ol{margin:0;padding-left:20px}
+</style>
+</head>
+<body>
+<h1 style="margin:0;font-size:20px">Coin Grab</h1>
+<p id="status">Connecting to Rehost…</p>
+<canvas id="c" width="640" height="400"></canvas>
+<p>Move with arrow keys or WASD, or drag on the field.</p>
+<ol id="scores"></ol>
+
+<!-- The only line a game needs to join a Rehost lobby: -->
+<script src="/sdk.js"></script>
+<script>
+// Minimal host-authoritative game. Every player sends input to the host;
+// the host moves everyone, decides who grabs the coin, and broadcasts state.
+const W = 640, H = 400, SPEED = 220, R = 14;
+const COLORS = ["#c21b1b","#1a52d6","#1bb8a3","#6a1fa8","#e6d31c","#e2771b","#1fa81f","#e05ab0","#8f9398","#6fa7e0","#146b3a","#5a3a14"];
+const ctx = document.getElementById("c").getContext("2d");
+const status = document.getElementById("status");
+const keys = {}; let drag = null;
+
+addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
+addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
+const cv = document.getElementById("c");
+cv.addEventListener("pointerdown", e => drag = pt(e));
+cv.addEventListener("pointermove", e => { if (drag) drag = pt(e) });
+addEventListener("pointerup", () => drag = null);
+function pt(e){ const r = cv.getBoundingClientRect(); return { x:(e.clientX-r.left)*W/r.width, y:(e.clientY-r.top)*H/r.height } }
+
+function myInput(me) {
+  let dx = (keys.arrowright||keys.d?1:0) - (keys.arrowleft||keys.a?1:0);
+  let dy = (keys.arrowdown||keys.s?1:0) - (keys.arrowup||keys.w?1:0);
+  if (drag && me) { dx = drag.x - me.x; dy = drag.y - me.y; if (Math.hypot(dx,dy) < 6) dx = dy = 0 }
+  const len = Math.hypot(dx, dy) || 1;
+  return { dx: dx/len, dy: dy/len };
+}
+
+let state = { players: {}, coin: { x: W/2, y: H/2 } };
+
+(async () => {
+  const net = await Rehost.connect().catch(e => { status.textContent = e.message; return null });
+  if (!net) { status.textContent = "Launch this game from a Rehost lobby to play with others. Playing solo."; }
+  const meId = net ? net.me.id : "solo";
+  const isHost = !net || net.isHost;
+  const inputs = {};
+  const names = {};
+  const syncNames = ps => ps.forEach((p, i) => { names[p.id] = { nick: p.nick, color: COLORS[i % 12] } });
+  if (net) { syncNames(net.players); net.on("players", syncNames); status.textContent = `You are ${net.me.nick}` + (isHost ? " (host)" : "") }
+  else names.solo = { nick: "You", color: COLORS[0] };
+
+  if (net) net.on("message", (data, from) => {
+    if (isHost && data.type === "input") inputs[from] = data;
+    if (!isHost && data.type === "state") state = data.state;
+  });
+  if (net) net.on("close", () => status.textContent = "Disconnected from the lobby.");
+
+  let last = performance.now(), sendAt = 0;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const mine = myInput(state.players[meId]);
+    if (isHost) {
+      inputs[meId] = mine;
+      for (const id of Object.keys(names)) {
+        const p = state.players[id] ||= { x: 40 + Math.random()*(W-80), y: 40 + Math.random()*(H-80), score: 0 };
+        const inp = inputs[id] || { dx: 0, dy: 0 };
+        p.x = Math.max(R, Math.min(W-R, p.x + (inp.dx||0)*SPEED*dt));
+        p.y = Math.max(R, Math.min(H-R, p.y + (inp.dy||0)*SPEED*dt));
+        if (Math.hypot(p.x-state.coin.x, p.y-state.coin.y) < R+10) {
+          p.score++; state.coin = { x: 30 + Math.random()*(W-60), y: 30 + Math.random()*(H-60) };
+        }
+      }
+      if (net && now - sendAt > 50) { sendAt = now; net.broadcast({ type: "state", state }) }   // 20 updates/sec
+    } else if (net && now - sendAt > 50) { sendAt = now; net.send({ type: "input", ...mine }) }
+    draw(names, meId);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+function draw(names, meId) {
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = "#f2c318"; ctx.beginPath(); ctx.arc(state.coin.x, state.coin.y, 9, 0, 7); ctx.fill();
+  const list = document.getElementById("scores"); list.textContent = "";
+  for (const [id, p] of Object.entries(state.players)) {
+    const n = names[id] || { nick: "?", color: "#888" };
+    ctx.fillStyle = n.color; ctx.fillRect(p.x-R, p.y-R, R*2, R*2);
+    if (id === meId) { ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.strokeRect(p.x-R, p.y-R, R*2, R*2) }
+    ctx.fillStyle = "#fff"; ctx.font = "12px sans-serif"; ctx.textAlign = "center"; ctx.fillText(n.nick, p.x, p.y-R-4);
+    const li = document.createElement("li"); li.textContent = `${n.nick}: ${p.score}`; list.appendChild(li);
+  }
+}
+</script>
+</body>
+</html>

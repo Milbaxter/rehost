@@ -1,0 +1,17 @@
+# Runs Rehost behind Caddy, which gets a free HTTPS certificate automatically.
+# Set DOMAIN in .env (e.g. DOMAIN=rehostgg.com) and point the domain's A record at the server.
+services:
+  rehost:
+    build: .
+    restart: unless-stopped
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+volumes:
+  caddy_data:

@@ -1,0 +1,14 @@
+{
+  "name": "rehost",
+  "version": "1.0.0",
+  "description": "Old-school custom game lobbies for any browser game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "ws": "^8.22.0"
+  }
+}
